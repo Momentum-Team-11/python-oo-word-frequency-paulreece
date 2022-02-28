@@ -1,3 +1,6 @@
+import string
+
+from numpy import column_stack
 STOP_WORDS = [
     'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has',
     'he', 'i', 'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the', 'to',
@@ -7,19 +10,29 @@ STOP_WORDS = [
 
 class FileReader:
     def __init__(self, filename):
-        pass
+        self.filename = filename
 
     def read_contents(self):
         """
         This should read all the contents of the file
         and return them as one string.
         """
+        with open(self.filename) as file:
+            text_string = file.read()
+        return text_string
+
+        # return self.filename.readlines()
+
         raise NotImplementedError("FileReader.read_contents")
+
+
+# praisesong = FileReader("praise_song_for_the_day.txt")
+# print(praisesong.read_contents())
 
 
 class WordList:
     def __init__(self, text):
-        pass
+        self.text = text
 
     def extract_words(self):
         """
@@ -27,14 +40,14 @@ class WordList:
         is responsible for lowercasing all words and stripping
         them of punctuation.
         """
+        self.text = self.text.lower().strip().replace("\n", "").split(" ")
+        transformed_words = []
+        self.list = transformed_words
+        for word in self.text:
+            if word not in STOP_WORDS:
+                transformed_words.append(word.strip(string.punctuation))
+        return self.list
         raise NotImplementedError("WordList.extract_words")
-
-    def remove_stop_words(self):
-        """
-        Removes all stop words from our word list. Expected to
-        be run after extract_words.
-        """
-        raise NotImplementedError("WordList.remove_stop_words")
 
     def get_freqs(self):
         """
@@ -43,12 +56,20 @@ class WordList:
         extract_words and remove_stop_words. The data structure
         could be a dictionary or another type of object.
         """
+        counts = dict()
+        for word in self.list:
+            counts[word] = counts.get(word, 0) + len(word)
+        return counts
         raise NotImplementedError("WordList.get_freqs")
+
+
+# texty = WordList(praisesong)
+# print(texty.text)
 
 
 class FreqPrinter:
     def __init__(self, freqs):
-        pass
+        self.freqs = freqs
 
     def print_freqs(self):
         """
@@ -67,6 +88,8 @@ class FreqPrinter:
        rights | 6    ******
         right | 6    ******
         """
+        return print(*[str(k) + ' | ' + str(v) + " " + ("*" * v)
+                       for k, v in sorted(self.freqs.items(), key=lambda x: x[1], reverse=True)], sep='\n')
         raise NotImplementedError("FreqPrinter.print_freqs")
 
 
@@ -85,7 +108,6 @@ if __name__ == "__main__":
         reader = FileReader(file)
         word_list = WordList(reader.read_contents())
         word_list.extract_words()
-        word_list.remove_stop_words()
         printer = FreqPrinter(word_list.get_freqs())
         printer.print_freqs()
     else:
